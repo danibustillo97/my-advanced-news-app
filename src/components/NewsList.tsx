@@ -1,6 +1,7 @@
-"use client";
+"use client"
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 interface NewsItem {
   id: string;
@@ -18,7 +19,7 @@ interface NewsItem {
   }[];
 }
 
-const NewsList = () => {
+const NewsPage = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
 
   useEffect(() => {
@@ -54,46 +55,87 @@ const NewsList = () => {
   }, []);
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px", fontSize: "2rem", color: "#333" }}>
-        Noticias
-      </h1>
-      {news.length === 0 ? (
-        <p style={{ textAlign: "center", color: "#888" }}>No hay noticias disponibles.</p>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
-          {news.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                overflow: "hidden",
-                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                backgroundColor: "#fff",
-                transition: "transform 0.2s",
-              }}
-            >
-              <div style={{ padding: "16px" }}>
-                <h2 style={{ fontSize: "1.5rem", color: "#510C76" }}>{item.title}</h2>
-                <p style={{ color: "#555", marginBottom: "8px" }}>{item.content}</p>
-                <small style={{ display: "block", color: "#888", marginBottom: "8px" }}>
-                  {new Date(item.created_at).toLocaleString()}
-                </small>
-                <p style={{ margin: "8px 0", fontSize: "0.9rem", color: "#333" }}>
-                  <strong>Categoría:</strong> {item.category?.name || "Sin categoría"}
-                </p>
-                <p style={{ margin: "8px 0", fontSize: "0.9rem", color: "#333" }}>
-                  <strong>Etiquetas:</strong>{" "}
-                  {item.tags.length > 0 ? item.tags.map((tag) => tag.name).join(", ") : "Sin etiquetas"}
-                </p>
+    <div className="container mt-5">
+      {/* Slider */}
+      <div id="newsCarousel" className="carousel slide" data-bs-ride="carousel">
+        <div className="carousel-inner">
+          {news.slice(0, 3).map((item, index) => (
+            <div className={`carousel-item ${index === 0 ? "active" : ""}`} key={item.id}>
+              <img
+                src={`https://via.placeholder.com/1200x500?text=${item.title}`}
+                className="d-block w-100"
+                alt={item.title}
+              />
+              <div className="carousel-caption d-none d-md-block">
+                <h5>{item.title}</h5>
+                <p>{item.content}</p>
               </div>
             </div>
           ))}
         </div>
-      )}
+        <button className="carousel-control-prev" type="button" data-bs-target="#newsCarousel" data-bs-slide="prev">
+          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span className="visually-hidden">Previous</span>
+        </button>
+        <button className="carousel-control-next" type="button" data-bs-target="#newsCarousel" data-bs-slide="next">
+          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+          <span className="visually-hidden">Next</span>
+        </button>
+      </div>
+
+      {/* Featured News */}
+      <section className="mt-5">
+        <h2 className="text-center text-primary">Noticias Destacadas</h2>
+        <div className="row">
+          {news
+            .filter((item) => item.is_featured)
+            .map((item) => (
+              <div className="col-md-4" key={item.id}>
+                <div className="card mb-4 shadow-sm">
+                  <img
+                    src={`https://via.placeholder.com/350x200?text=${item.title}`}
+                    className="card-img-top"
+                    alt={item.title}
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title">{item.title}</h5>
+                    <p className="card-text">{item.content.substring(0, 100)}...</p>
+                    <a href={`/news/${item.id}`} className="btn btn-primary">
+                      Leer más
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </section>
+
+      {/* Latest News */}
+      <section className="mt-5">
+        <h2 className="text-center text-primary">Últimas Noticias</h2>
+        <div className="row">
+          {news.slice(3, 9).map((item) => (
+            <div className="col-md-4" key={item.id}>
+              <div className="card mb-4 shadow-sm">
+                <img
+                  src={`https://via.placeholder.com/350x200?text=${item.title}`}
+                  className="card-img-top"
+                  alt={item.title}
+                />
+                <div className="card-body">
+                  <h5 className="card-title">{item.title}</h5>
+                  <p className="card-text">{item.content.substring(0, 100)}...</p>
+                  <a href={`/news/${item.id}`} className="btn btn-primary">
+                    Leer más
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };
 
-export default NewsList;
+export default NewsPage;
